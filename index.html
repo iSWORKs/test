@@ -1,0 +1,175 @@
+
+<html lang="ja" manifest="audio.manifest">
+	<head>
+
+	<meta charset="utf-8"> 
+	<title>banana</title>
+	
+    <!--画面サイズの最適化-->
+	<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+    <!--フルスクリーン表示-->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!--ステータスバーのスタイル変更-->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<!--ホーム画面アイコン-->
+    <link rel="apple-touch-icon" />
+    <!--スタートアップイメージ-->
+    <link rel="apple-touch-startup-image" href="loding.png" />	
+	<!--CSS-->
+	<link rel="stylesheet" href="./css/jquery.mobile-1.0a4.1.min.css" />
+    <link rel="stylesheet" href="./css/style1.css" />
+	<link rel="stylesheet" href="./css/style2.css" />
+	
+    <!-- [ SCRIPT ] -->	
+	<script src="./js/jquery-1.6.1.js"></script>
+	<script src="./js/jquery.mobile-1.0a4.1.min.js"></script>
+	<script src="./js/util.js"></script>
+	<!-- [ /SCRIPT ] -->
+
+</head>
+
+<body>
+
+	<div data-role="page" id="menu" data-fullscreen="true">
+		
+		<div data-role="header">
+      		<H1 style="display:none;">banana</h1>
+    	</div>
+		
+		<div data-role="content">
+			
+            <div id="button">
+				<input type="button" value="1．スタンバイ" onClick="preload()" data-theme="">
+			</div>
+            
+            
+            <div class="tap"><img src="image/2.png" width="241" height="110" alt="2.バナナをタップ"></div>
+			<div class="playstart">
+				<a href="#sound01"><img src="image/banana.gif" width="450" height="524" alt="banana"></a>
+			</div>
+			
+			<div id="indicator"></div>
+			
+			<!-- audio Data -->
+			<audio id="mixAud" src="./audio/rock2.mp3">audioタグに対応したブラウザで遊んでください</audio>
+			
+		</div>
+
+	</div>
+	
+	<!-- page -->
+	<div data-role="page" id="sound01" data-fullscreen="true" class="carImgPage">
+		<div data-role="header" data-position="fixed" >
+      		<h1>sound1</h1>
+    	</div>
+		<div data-role="content">
+			
+            <div class="hure"><img src="image/hure.gif" width="540" height="176" alt="バナナを振りまくれ！"></div>
+			<div class="img">
+		    	<img src="image/banana.gif" width="450" height="524" alt="banana">
+            </div> 	
+						
+		</div>
+	</div>
+
+	
+
+
+<!-- JS -->
+<script type="text/javascript">
+
+	var shakeFlg = false;
+	var rotatFlg = false;
+	var loadFlg = false;
+	var drive = false;
+
+	var util = new Util('indicator','スタンバイ中...');
+	var aud = document.getElementById('mixAud');
+	var duration = aud.currentTime;
+
+	$(document).ready(function(){
+		$('.carImgPage').live('pageshow', function(e, ui){
+			drive = true;
+			if(!loadFlg){
+				window.alert('遊ぶ前にstandbyボタンを押してください');				
+			}
+		}).live('pagehide', function(e, ui){
+			drive = false;
+		});
+	});
+
+	// プリロード
+	aud.addEventListener('canplay',function(){
+		if(!loadFlg){
+			window.alert('準備完了');
+			util.removeProgress();
+		}
+		loadFlg = true;
+	}, true);
+	
+	function preload(){
+		aud.load();
+		if(!loadFlg){
+			util.displayProgress();
+		}else{
+			window.alert('音声を読み込みました');
+		}
+	}
+	
+	// 加速度に対応する挙動
+	window.addEventListener('devicemotion', function(evt){
+		
+		var acc = evt.acceleration; // 加速度
+		var grav = evt.accelerationIncludingGravity; // 各方向の傾き
+			
+		// 非対応の場合
+		if(acc == null){ return; }
+			
+		if ((loadFlg == true) && (drive == true)) {
+			
+			// 音１
+			if (((acc.x > 1.0 || acc.x < -1.0)) ) {
+					
+				if ((shakeFlg === true) && (rotatFlg === false)) {
+					$('.img').addClass('crash');
+					audZoom();
+				}
+				setFlg(true, false);
+						
+			// 停止
+			} else {
+				
+				if ((shakeFlg === false) && (rotatFlg === false)) {
+					$('.img').removeClass('crash');
+					aud.pause();
+					if(aud.currentTime > 5){
+					aud.currentTime = 0;		
+		}
+				}
+				setFlg(false, false);
+			}
+		}
+	}, true);
+
+	// フラグ管理
+	function setFlg(shake,rotat){
+		shakeFlg = shake;
+		rotatFlg = rotat;
+	}
+
+	// 再生
+	function audZoom(){
+		
+		aud.play();
+	}
+
+	function audCrash(){
+		
+		aud.play();
+	}
+
+
+</script>
+	
+</body>
+</html>
